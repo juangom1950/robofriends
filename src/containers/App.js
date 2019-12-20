@@ -17,6 +17,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    console.log(this.props.store.getState());
     //fetch is an object that comes with the browser that is going to allow us to do api calls
     fetch("https://jsonplaceholder.typicode.com/users")
       .then(response => response.json())

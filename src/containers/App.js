@@ -7,13 +7,17 @@ import ErrorBoundry from "../components/ErrorBoundry";
 import "./App.css";
 
 //An action is just a function the retuns an object
-import { setSearchField } from  '../components/actions';
+import { setSearchField, requestRobots} from  '../actions';
 
 //It said tell be what peace of state I need to listen to and then send it to the props
 const mapStateToProps = (state, ownProps) => {
   return {
     //this "state.searchRobots.searchField" comes from our reducer
-    searchField: state.searchField
+    //This is configured in the index.js file
+    searchField: state.searchRobots.searchField,
+    robots: state.requestRobots.robots,
+    isPending: state.requestRobots.isPending,
+    error: state.requestRobots.error
   }
 }
 
@@ -21,29 +25,37 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     //Here we dispatch an action. setSearchField is in actions.js
-   onSearchChange: (event) => dispatch(setSearchField(event.target.value))
+   onSearchChange: (event) => dispatch(setSearchField(event.target.value)),
+   //The requestRobots is an action that we import at the top from the actions file
+   onRequestRobots: () => dispatch(requestRobots())
   }
 }
 
 class App extends Component {
-  //We need to add this to add a state
-  //State use to live in the app component
-  constructor() {
-    super();
-    this.state = {
-      robots: [],
-      //searchfield: ""
-    };
-  }
+  //We don't need this anymore, because this states now are going to be returned as part of the props
+  //from this.props.onRequestRobots() in componentDidMount
+
+  // //We need to add this to add a state
+  // //State use to live in the app component
+  // constructor() {
+  //   super();
+  //   this.state = {
+  //     robots: [],
+  //     //searchfield: ""
+  //   };
+  // }
 
   componentDidMount() {
-    console.log(this.props.store);
+    //console.log(this.props.store);
     //fetch is an object that comes with the browser that is going to allow us to do api calls
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then(response => response.json())
-      .then(users => {
-        this.setState({ robots: users });
-      });
+    // fetch("https://jsonplaceholder.typicode.com/users")
+    //   .then(response => response.json())
+    //   .then(users => {
+    //     this.setState({ robots: users });
+    //   });
+
+    //We just need this now. We don't need the code above
+    this.props.onRequestRobots()
   }
 
   //We can remove this method now, because it is comming as a prop from Redux.
@@ -56,8 +68,8 @@ class App extends Component {
   // };
 
   render() {
-    const { robots } = this.state;
-    const { searchField, onSearchChange } = this.props;
+    //const { robots } = this.state;
+    const { searchField, onSearchChange, robots, isPending } = this.props;
     const filteredRobots = robots.filter(robot => {
       //This searchfield is comming as props through Redux
       return robot.name.toLowerCase().includes(searchField.toLowerCase());
@@ -65,7 +77,7 @@ class App extends Component {
 
     //We check if we get the information yet.
     // ErrorBoundry shows a nice error to the end customer
-    return !robots.length ? (
+    return isPending ? (
       <h1>Loading</h1>
     ) : (
       <div className="tc">
@@ -81,5 +93,7 @@ class App extends Component {
   }
 }
 /*connect is a higher order function. It is a function that returns another function, then that other 
-function is going to run with the "App" parameter. This is going to take this props into the App*/
+function is going to run with the "App" parameter. This is going to take this props into the App*
+Explanations: https://www.freecodecamp.org/news/a-quick-intro-to-higher-order-functions-in-javascript-1a014f89c6b/
+https://stackoverflow.com/questions/55905677/how-to-call-a-function-that-returns-another-function-in-javascript*/
 export default connect(mapStateToProps, mapDispatchToProps)(App);

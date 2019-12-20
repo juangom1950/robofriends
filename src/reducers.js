@@ -12,8 +12,8 @@ const initialState = {
 
 //This function always receives a state and an action
 export const searchRobots = (state=initialState, action={}) => {
-  console.log(action.type);
-  
+  //console.log(action.type);
+
   switch(action.type) {
     case CHANGE_SEARCH_FIELD: 
       //We want to return a new state
